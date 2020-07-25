@@ -7,6 +7,7 @@ go 1.14
 require (
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/google/go-github/v32 v32.1.0
+	github.com/heroku/x v0.0.25 // indirect
 	github.com/rs/zerolog v1.19.0
 	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899 // indirect
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
