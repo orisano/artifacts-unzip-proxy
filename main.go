@@ -62,6 +62,10 @@ func (h *UnzipHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
+	if req.URL.Path == "/favicon.ico" {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 
 	logger := log.With().
 		Str("path", req.URL.Path).
