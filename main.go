@@ -45,6 +45,7 @@ func main() {
 		handler.httpClient = http.DefaultClient
 	}
 
+	log.Info().Msgf("listen on :%s", port)
 	s := http.Server{
 		Addr:              ":" + port,
 		Handler:           &handler,
