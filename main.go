@@ -157,7 +157,6 @@ func (h *UnzipHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 	var item *zip.File
 	for _, f := range zr.File {
-		logger.Debug().Str("name", f.Name).Send()
 		if f.Name == itemPath {
 			item = f
 			break
