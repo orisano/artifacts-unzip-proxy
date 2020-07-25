@@ -1,5 +1,7 @@
 module github.com/orisano/artifacts-unzip-proxy
 
+// +heroku goVersion go1.14
+
 go 1.14
 
 require (
