@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/google/go-github/v32/github"
+	"github.com/google/gops/agent"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/oauth2"
@@ -43,6 +44,10 @@ func main() {
 		)
 	} else {
 		handler.httpClient = http.DefaultClient
+	}
+
+	if err := agent.Listen(agent.Options{}); err != nil {
+		log.Fatal().Err(err).Msg("failed to listen gops agent")
 	}
 
 	log.Info().Msgf("listen on :%s", port)
