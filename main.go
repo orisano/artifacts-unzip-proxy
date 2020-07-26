@@ -26,6 +26,11 @@ const (
 
 type UnzipHandler struct {
 	httpClient *http.Client
+
+	// List of GitHub owners who permitted to use this proxy.
+	// You can set multiple owners via environment variables like:
+	// PROXY_ALLOWED_OWNERS="orisano:c-bata"
+	allowedOwners map[string]struct{}
 }
 
 func main() {
@@ -34,7 +39,17 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
+
 	handler := UnzipHandler{}
+	owners := os.Getenv("PROXY_ALLOWED_OWNERS")
+	if owners != "" {
+		x := strings.Split(owners, ":")
+		handler.allowedOwners = make(map[string]struct{}, len(owners))
+		for _, r := range x {
+			handler.allowedOwners[r] = struct{}{}
+		}
+	}
+
 	if token := os.Getenv("GITHUB_TOKEN"); token != "" {
 		handler.httpClient = oauth2.NewClient(
 			nil,
@@ -86,6 +101,13 @@ func (h *UnzipHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	tokens := strings.SplitN(req.URL.Path, "/", 6)
 	owner := tokens[1]
 	repo := tokens[2]
+
+	if _, ok := h.allowedOwners[owner]; !ok {
+		logger.Info().Msg("unauthorized owners")
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
 	artifactID, err := strconv.ParseInt(tokens[5], 10, 64)
 	if err != nil {
 		logger.Info().Msgf("artifact_id is not a number: %s", err)
