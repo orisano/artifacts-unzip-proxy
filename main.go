@@ -13,6 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dgraph-io/ristretto"
+	"github.com/dustin/go-humanize"
 	"github.com/google/go-github/v32/github"
 	"github.com/google/gops/agent"
 	"github.com/rs/zerolog"
@@ -26,6 +28,7 @@ const (
 
 type UnzipHandler struct {
 	httpClient *http.Client
+	cache      *ristretto.Cache
 
 	// List of GitHub owners who permitted to use this proxy.
 	// You can set multiple owners via environment variables like:
@@ -59,6 +62,20 @@ func main() {
 		)
 	} else {
 		handler.httpClient = http.DefaultClient
+	}
+
+	if maxCacheSizeStr := os.Getenv("MAX_CACHE_SIZE"); maxCacheSizeStr != "" {
+		maxCacheSize, err := humanize.ParseBytes(maxCacheSizeStr)
+		if err != nil {
+			log.Fatal().Err(err).Msgf("invalid MAX_CACHE_SIZE: %q", maxCacheSizeStr)
+		}
+		if maxCacheSize > 0 {
+			handler.cache, _ = ristretto.NewCache(&ristretto.Config{
+				NumCounters: maxInt64(int64(maxCacheSize/(32*1024)*10), 10000),
+				MaxCost:     int64(maxCacheSize),
+				BufferItems: 64,
+			})
+		}
 	}
 
 	if err := agent.Listen(agent.Options{}); err != nil {
@@ -127,13 +144,29 @@ func (h *UnzipHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	contentType := mime.TypeByExtension(path.Ext(itemPath))
+	cacheControl := "max-age=7776000, public"
+
+	cacheKey := path.Join(req.URL.Path, itemPath)
+	if h.cache != nil {
+		value, ok := h.cache.Get(cacheKey)
+		if ok { // fast path
+			header := w.Header()
+			header.Set("content-type", contentType)
+			header.Set("cache-control", cacheControl)
+			w.WriteHeader(http.StatusOK)
+			w.Write(value.([]byte))
+			return
+		}
+	}
+
 	ctx := req.Context()
 	client := github.NewClient(h.httpClient)
 	signedURL, redirectRes, err := client.Actions.DownloadArtifact(ctx, owner, repo, artifactID, true)
 	if err != nil {
 		if re, ok := err.(*github.RateLimitError); ok {
 			logger.Warn().Msgf("reached rate limit: %s", re.Message)
-			w.Header().Set("Retry-After", re.Rate.Reset.Format(http.TimeFormat))
+			w.Header().Set("retry-after", re.Rate.Reset.Format(http.TimeFormat))
 			w.WriteHeader(http.StatusServiceUnavailable)
 			return
 		}
@@ -211,13 +244,28 @@ func (h *UnzipHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	defer rc.Close()
-	mimeType := mime.TypeByExtension(path.Ext(item.Name))
 
 	header := w.Header()
-	header.Add("Content-Type", mimeType)
-	header.Add("Cache-Control", "max-age=7776000, public")
+	header.Set("content-type", contentType)
+	header.Set("cache-control", cacheControl)
 	w.WriteHeader(http.StatusOK)
-	if _, err := io.Copy(w, rc); err != nil {
-		logger.Info().Err(err).Msg("failed to write response")
+	if h.cache != nil {
+		buf := bytes.NewBuffer(make([]byte, item.UncompressedSize64))
+		if _, err := io.Copy(w, io.TeeReader(rc, buf)); err != nil {
+			logger.Info().Err(err).Msg("failed to write response")
+		}
+		h.cache.Set(cacheKey, buf.Bytes(), int64(buf.Len()))
+	} else {
+		if _, err := io.Copy(w, rc); err != nil {
+			logger.Info().Err(err).Msg("failed to write response")
+		}
+	}
+}
+
+func maxInt64(a, b int64) int64 {
+	if a > b {
+		return a
+	} else {
+		return b
 	}
 }

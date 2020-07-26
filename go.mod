@@ -5,6 +5,8 @@ module github.com/orisano/artifacts-unzip-proxy
 go 1.14
 
 require (
+	github.com/dgraph-io/ristretto v0.0.3
+	github.com/dustin/go-humanize v1.0.0
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/google/go-github/v32 v32.1.0
 	github.com/google/gops v0.3.10
