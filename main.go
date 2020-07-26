@@ -144,18 +144,12 @@ func (h *UnzipHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	contentType := mime.TypeByExtension(path.Ext(itemPath))
-	cacheControl := "max-age=7776000, public"
-
-	cacheKey := path.Join(req.URL.Path, itemPath)
+	cacheKey := req.URL.Path
 	if h.cache != nil {
 		value, ok := h.cache.Get(cacheKey)
 		if ok { // fast path
-			header := w.Header()
-			header.Set("content-type", contentType)
-			header.Set("cache-control", cacheControl)
-			w.WriteHeader(http.StatusOK)
-			w.Write(value.([]byte))
+			zippedArtifact := value.([]byte)
+			writeItem(logger, w, zippedArtifact, itemPath)
 			return
 		}
 	}
@@ -211,14 +205,26 @@ func (h *UnzipHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	if writeItem(logger, w, zippedArtifact, itemPath) {
+		if h.cache != nil {
+			h.cache.Set(cacheKey, zippedArtifact, int64(len(zippedArtifact)))
+		}
+	}
+}
+
+func writeItem(logger zerolog.Logger, w http.ResponseWriter, zippedArtifact []byte, itemPath string) bool {
+	contentType := mime.TypeByExtension(path.Ext(itemPath))
+	cacheControl := "max-age=7776000, public"
+
 	logger = logger.With().Int("artifact_size", len(zippedArtifact)).Logger()
 
 	br := bytes.NewReader(zippedArtifact)
 	zr, err := zip.NewReader(br, br.Size())
 	if err != nil {
-		logger.Info().Str("content_type", artifactRes.Header.Get("Content-Type")).Err(err).Msg("failed to read zip")
+		logger.Info().Err(err).Msg("failed to read zip")
 		w.WriteHeader(http.StatusServiceUnavailable)
-		return
+		return false
 	}
 	var item *zip.File
 	for _, f := range zr.File {
@@ -230,18 +236,18 @@ func (h *UnzipHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if item == nil {
 		logger.Info().Msg("not found the item in the archive")
 		w.WriteHeader(http.StatusNotFound)
-		return
+		return true
 	}
 	if item.UncompressedSize64 > maxSize {
 		logger.Info().Uint64("uncompressed_size", item.UncompressedSize64).Msg("too large content")
 		w.WriteHeader(http.StatusBadRequest)
-		return
+		return true
 	}
 	rc, err := item.Open()
 	if err != nil {
 		logger.Info().Err(err).Msg("failed to open the item")
 		w.WriteHeader(http.StatusServiceUnavailable)
-		return
+		return true
 	}
 	defer rc.Close()
 
@@ -249,17 +255,10 @@ func (h *UnzipHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	header.Set("content-type", contentType)
 	header.Set("cache-control", cacheControl)
 	w.WriteHeader(http.StatusOK)
-	if h.cache != nil {
-		buf := bytes.NewBuffer(make([]byte, item.UncompressedSize64))
-		if _, err := io.Copy(w, io.TeeReader(rc, buf)); err != nil {
-			logger.Info().Err(err).Msg("failed to write response")
-		}
-		h.cache.Set(cacheKey, buf.Bytes(), int64(buf.Len()))
-	} else {
-		if _, err := io.Copy(w, rc); err != nil {
-			logger.Info().Err(err).Msg("failed to write response")
-		}
+	if _, err := io.Copy(w, rc); err != nil {
+		logger.Info().Err(err).Msg("failed to write response")
 	}
+	return true
 }
 
 func maxInt64(a, b int64) int64 {
