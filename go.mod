@@ -13,10 +13,11 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/gops v0.3.25
 	github.com/heroku/x v0.0.52
+	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/rs/zerolog v1.27.0
-	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
-	golang.org/x/net v0.0.0-20220728211354-c7608f3a8462 // indirect
-	golang.org/x/oauth2 v0.0.0-20220722155238-128564f6959c
-	golang.org/x/sys v0.0.0-20220730100132-1609e554cd39 // indirect
+	golang.org/x/crypto v0.0.0-20220817201139-bc19a97f63c8 // indirect
+	golang.org/x/net v0.0.0-20220812174116-3211cb980234 // indirect
+	golang.org/x/oauth2 v0.0.0-20220808172628-8227340efae7
+	golang.org/x/sys v0.0.0-20220817070843-5a390386f1f2 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 )
