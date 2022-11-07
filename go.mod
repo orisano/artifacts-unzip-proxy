@@ -12,7 +12,7 @@ require (
 	github.com/google/go-github/v32 v32.1.0
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/gops v0.3.25
-	github.com/heroku/x v0.0.54
+	github.com/heroku/x v0.0.55
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/rs/zerolog v1.28.0
 	golang.org/x/crypto v0.1.0 // indirect
