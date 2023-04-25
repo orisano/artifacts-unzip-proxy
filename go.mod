@@ -16,7 +16,7 @@ require (
 	github.com/heroku/x v0.0.57
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.18 // indirect
-	github.com/rs/zerolog v1.29.0
+	github.com/rs/zerolog v1.29.1
 	golang.org/x/crypto v0.8.0 // indirect
 	golang.org/x/oauth2 v0.7.0
 	google.golang.org/protobuf v1.30.0 // indirect
