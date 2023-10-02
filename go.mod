@@ -12,8 +12,7 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/gops v0.3.28
 	github.com/heroku/x v0.0.61
-	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.19 // indirect
-	github.com/rs/zerolog v1.30.0
-	golang.org/x/oauth2 v0.11.0
+	github.com/rs/zerolog v1.31.0
+	golang.org/x/oauth2 v0.12.0
+	google.golang.org/appengine v1.6.8 // indirect
 )
