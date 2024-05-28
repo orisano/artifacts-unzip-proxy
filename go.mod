@@ -12,7 +12,7 @@ require (
 	github.com/google/go-github/v32 v32.1.0
 	github.com/google/gops v0.3.28
 	github.com/heroku/x v0.2.2
-	github.com/rs/zerolog v1.32.0
+	github.com/rs/zerolog v1.33.0
 	golang.org/x/oauth2 v0.20.0
 )
 
