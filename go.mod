@@ -2,9 +2,9 @@ module github.com/orisano/artifacts-unzip-proxy
 
 // +heroku goVersion go1.14
 
-go 1.21
+go 1.23.0
 
-toolchain go1.21.0
+toolchain go1.24.0
 
 require (
 	github.com/dgraph-io/ristretto v1.0.0
@@ -23,6 +23,6 @@ require (
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	golang.org/x/crypto v0.33.0 // indirect
+	golang.org/x/crypto v0.34.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 )
