@@ -20,8 +20,8 @@ github.com/google/go-querystring v1.2.0 h1:yhqkPbu2/OH+V9BfpCVPZkNmUXhb2gBxJArfh
 github.com/google/go-querystring v1.2.0/go.mod h1:8IFJqpSRITyJ8QhQ13bmbeMBDfmeEJZD5A0egEOmkqU=
 github.com/google/gops v0.3.29 h1:n98J2qSOK1NJvRjdLDcjgDryjpIBGhbaqph1mXKL0rY=
 github.com/google/gops v0.3.29/go.mod h1:8N3jZftuPazvUwtYY/ncG4iPrjp15ysNKLfq+QQPiwc=
-github.com/heroku/x v0.5.2 h1:B3g+m78yQk70Mhe1MsrHICgDJwJMZNVDkaQtLhsSA/U=
-github.com/heroku/x v0.5.2/go.mod h1:B025iaZU9I0gPJSsBYmipizkS5TKgX9NWEx8IQQYTuI=
+github.com/heroku/x v0.5.3 h1:lf4/Yg3j/e/QIgAUFmoVd0ELgQjUX9DUx+CULX2AWag=
+github.com/heroku/x v0.5.3/go.mod h1:MEW61sTisuKAjLRoO1reSmX4xKqKxAKWWl2HER8Vn2M=
 github.com/mattn/go-colorable v0.1.13/go.mod h1:7S9/ev0klgBDR4GtXTXX8a3vIGJpMovkB8vQcUbaXHg=
 github.com/mattn/go-colorable v0.1.14 h1:9A9LHSqF/7dyVVX6g0U9cwm9pG3kP9gSzcuIPHPsaIE=
 github.com/mattn/go-colorable v0.1.14/go.mod h1:6LmQG8QLFO4G5z1gPvYEzlUgJ2wF+stgPZH1UqBm1s8=
